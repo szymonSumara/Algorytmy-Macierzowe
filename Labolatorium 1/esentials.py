@@ -1,0 +1,86 @@
+import time
+import numpy as np
+
+def execution_func_wrapper(func, label):
+
+    start = time.time()
+    f_result = func()
+    end = time.time()
+    print("Elapsed Time (" + label + " ):", end - start)
+    return {
+        "time": end - start,
+        "result": f_result,
+    }
+
+
+def save_matrix_to_file(matrix, filename):
+
+    data = ""
+
+    for row in matrix:
+        for value in row:
+            data += str(value) + ','
+        data += '\n'
+
+    with open(filename, 'w') as f:
+        f.write(data)
+
+
+def read_matrix_from_file(matrix, filename):
+    with open(filename, 'r') as f:
+        data = f.read()
+        it_row, it_col = 0, 0
+        for row in data.split('\n'):
+            for cell in row.split(','):
+                if cell:
+                    matrix[it_row][it_col] = float(cell)
+                    it_col += 1
+            it_row += 1
+            it_col = 0
+    return matrix
+
+
+def extend_matrix(matrix, q):
+
+    columns, rows = matrix.shape
+
+    new_matrix = np.zeros((columns*q, rows * q))
+    for c in range(columns):
+        for r in range(rows):
+            for i in range(q):
+                for j in range(q):
+                    new_matrix[i*columns + c][j*rows + r] = matrix[c][r]
+    return new_matrix
+
+
+class CSVGenerator:
+
+    def __init__(self):
+        self.header = []
+        self.body = []
+
+    def set_header(self, header):
+        self.header = header[:]
+
+    def add_row(self, new_row):
+        self.body.append(new_row[:])
+
+    def clear_body(self):
+        self.body = []
+        self.header = []
+
+    def save_to_file(self, filename):
+
+        with open(filename, 'w') as f:
+            data = ""
+            for label in self.header:
+                data += label + ','
+            data += '\n'
+
+            for row in self.body:
+                for item in row:
+                    data += str(item) + ','
+                data += '\n'
+
+            f.write(data)
+            
