@@ -1,21 +1,30 @@
 import numpy as np
 from esentials import *
 from gaussElimination import *
-
+header = ["nxx", "time"]
+tests = CSVGenerator()
+tests.set_header(["type", "nxx", "div", "time"])
 # -------------- 1 ------------------
+for i in range(10, 20):
+    for d in [2, 4, 8, 16]:
+        for t in range(5):
+            mat = read_matrix_from_file('Generator macierzy/fem' + str(i) + '.csv')
+            tests.add_row([
+                "fem",
+                i,
+                d,
+                execution_func_wrapper(lambda: schur_complement(mat,int(mat.shape[0]/d)), 'fem' + str(i) +" n/" + str(d))['time']
+            ])
+# -------------- 2 ------------------
+for i in range(15, 25):
+    for d in [2, 4, 8, 16]:
+        for t in range(5):
+            mat = read_matrix_from_file('Generator macierzy/iga' + str(i) + '.csv')
+            tests.add_row([
+                "iga",
+                i,
+                d,
+                execution_func_wrapper(lambda: schur_complement(mat,int(mat.shape[0]/d)), 'iga' + str(i) +" n/2")['time']
+            ])
 
-for i in range(20,25):
-    mat = read_matrix_from_file('Generator macierzy/fem' + str(i) + '.csv')
-    execution_func_wrapper(lambda: column_gauss_elimination(mat,int(mat.shape[0]/2)), 'fem' + str(i) +"n/2")
-    execution_func_wrapper(lambda: column_gauss_elimination(mat,int(mat.shape[0]/4)),'fem' + str(i) +"n/4")
-
-
-matrix = np.mat([
-    [1.0,2.0,3.0,4.0],
-    [5.0,6.0,5.0,8.0],
-    [9.0,10.0,21.0,12.0],
-    [13.0,14.0,15.0,76.0]
-])
-
-print(matrix)
-column_gauss_elimination(matrix)
+tests.save_to_file("tests.csv")
