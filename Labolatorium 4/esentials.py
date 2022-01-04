@@ -1,8 +1,8 @@
 import time
 import numpy as np
+from memory_profiler import memory_usage
 
-
-EPSILON = 10**(-4)
+EPSILON = 10**(-7)
 
 class TmpRow:
     def __init__(self, VAL, JCN):
@@ -13,7 +13,7 @@ class TmpRow:
         new_value = self.VAL[:]
         for i in range(len(new_value)):
             new_value[i] *= scalar
-        return  TmpRow(new_value, self.JCN[:])
+        return TmpRow(new_value, self.JCN[:])
 
     def div_by_scalar(self, scalar):
         for i in range(len(self.VAL)):
@@ -77,19 +77,23 @@ class CoordinateMatrix:
         self.VAL = VAL[:]
         self.shape = shape
 
-    def update_row(self, row, tmpRow):
+    def copy(self):
+        return CoordinateMatrix(self.IRN[:], self.JCN[:], self.VAL[:], self.shape)
+
+    def update_row(self, row, tmpRow, start_index=None, end_index=None):
 
         tmp_IRN = [row for _ in tmpRow.VAL]
 
-        start_index = 0
+        if not start_index:
+            start_index = 0
 
-        while start_index < len(self.VAL) and self.IRN[start_index] < row:
-            start_index += 1
+            while start_index < len(self.VAL) and self.IRN[start_index] < row:
+                start_index += 1
 
-        end_index = start_index
-        if self.IRN[start_index] == row:
-            while end_index < len(self.VAL) and self.IRN[end_index] == row:
-                end_index += 1
+            end_index = start_index
+            if self.IRN[start_index] == row:
+                while end_index < len(self.VAL) and self.IRN[end_index] == row:
+                    end_index += 1
 
         self.JCN = self.JCN[:start_index] + tmpRow.JCN + self.JCN[end_index:]
         self.IRN = self.IRN[:start_index] + tmp_IRN + self.IRN[end_index:]
@@ -113,10 +117,18 @@ def execution_func_wrapper(func, label):
     f_result = func()
     end = time.time()
     print("Elapsed Time (" + label + " ):", end - start)
+    func_memory_usage = calulate_memory_usage(None, func)
+
     return {
         "time": end - start,
         "result": f_result,
+        "memory": func_memory_usage,
     }
+
+def calulate_memory_usage(args, function=lambda x: x):
+    mem_usage = max(memory_usage((function), ))
+    return mem_usage
+
 
 
 def matrix_to_coordinate_format(matrix):
@@ -127,13 +139,12 @@ def matrix_to_coordinate_format(matrix):
 
     for row_index in range(len(matrix)):
         for column_index in range(len(matrix[row_index])):
-
-            if EPSILON < abs(matrix[row_index][column_index]) :
+            if EPSILON < abs(matrix[row_index][column_index]):
                 IRN.append(row_index)
                 JCN.append(column_index)
                 VAL.append(matrix[row_index][column_index])
 
-    return CoordinateMatrix(IRN, JCN, VAL, matrix.shape)
+    return CoordinateMatrix(IRN, JCN, VAL, (len(matrix),len(matrix)))
 
 
 def save_matrix_to_file(matrix, filename):
@@ -161,14 +172,18 @@ def read_matrix_from_file( filename):
             for cell in row.split(','):
                 col_number +=1
 
-        matrix = np.zeros((row_number - 1, int(col_number/row_number) + 1))
+        matrix = [[0.0 for i in range(int(col_number/row_number) + 1) ] for i in range(row_number - 1)]
+        #matrix = np.zeros((row_number - 1, int(col_number/row_number) + 1))
 
 
         it_row, it_col = 0, 0
         for row in data.split('\n'):
             for cell in row.split(','):
                 if cell:
-                    matrix[it_row][it_col] = float(cell)
+                    if EPSILON < abs(float(cell)):
+                        matrix[it_row][it_col] = float(cell)
+                    else:
+                        matrix[it_row][it_col] = 0
                     it_col += 1
             it_row += 1
             it_col = 0
