@@ -13,7 +13,7 @@ int main() {
     Matrix m =gen(0,18,2,0);
     file<<m;
     file.close();
-    m =gen(1,13,3,0);
+    m = gen(1,19,3,0);
     std::string fem_name = "4a.csv";
     file.open(fem_name);
     file<<m;

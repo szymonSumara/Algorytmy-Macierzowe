@@ -5,44 +5,52 @@ from gaussElimination import *
 
 if __name__ == '__main__':
 
-    m400 = read_matrix_from_file('3a.csv')
-    m1600 = read_matrix_from_file('4a.csv')
+    # m400 = read_matrix_from_file('3a.csv')
+    # m1600 = read_matrix_from_file('4a.csv')
+    #
+    # csv = CSVGenerator()
+    # csv.set_header(["matrix", "method",  "size", "time", "memory_consumption"])
+    #
+    # for mat, mat_name in [(m400, "m400"), (m1600, "m1600")]:
+    #     for size in [50, 100, 200, 400, 600, 800, 1200, 1600]:
+    #         if size > len(mat):
+    #             break
+    #         for t in range(1):
+    #
+    #             sliced_mat = [[mat[row_index][column_index] for column_index in range(size)] for row_index in range( size)]
+    #
+    #             data = execution_func_wrapper(
+    #                    lambda : matrix_to_coordinate_format(sliced_mat),
+    #                     "Matrix({0}) conversion time".format(size)
+    #                 )
+    #
+    #             converted = data['result']
+    #
+    #             data1 = execution_func_wrapper(
+    #                 lambda: row_sparse_coordinate_gauss_elimination(converted),
+    #                 "Converted {0} {1}".format(size, mat_name)
+    #             )
+    #
+    #
+    #             data2 = execution_func_wrapper(
+    #                 lambda: row_gauss_elimination(sliced_mat),
+    #                 "Non convert {0} {1}".format(size, mat_name)
+    #             )
+    #
+    #             csv.add_row([mat_name, "sparse", size, data1['time'], data1['memory']])
+    #             csv.add_row([mat_name, "dense", size, data2['time'], data2['memory']])
+    #     csv.save_to_file("tests.csv")
 
-    csv = CSVGenerator()
-    csv.set_header(["matrix", "method",  "size", "time", "memory_consumption"])
+    def list( numb):
+        new_list = [ 0.0 for _ in range(numb*10000)]
 
-    for mat, mat_name in [(m400, "m400"), (m1600, "m1600")]:
-        for size in [50, 100, 200, 400, 600, 800, 1200, 1600]:
-            if size > len(mat):
-                break
-            for t in range(1):
+    print(execution_func_wrapper(
+                    lambda  : list(0),
+                    "Converted {0} {1}"
+                ))
 
-                sliced_mat = [[mat[row_index][column_index] for column_index in range(size)] for row_index in range( size)]
-
-                data = execution_func_wrapper(
-                       lambda : matrix_to_coordinate_format(sliced_mat),
-                        "Matrix({0}) conversion time".format(size)
-                    )
-
-                converted = data['result']
-
-                data1 = execution_func_wrapper(
-                    lambda: row_sparse_coordinate_gauss_elimination(converted),
-                    "Converted {0} {1}".format(size, mat_name)
-                )
-
-
-                data2 = execution_func_wrapper(
-                    lambda: row_gauss_elimination(sliced_mat),
-                    "Non convert {0} {1}".format(size, mat_name)
-                )
-
-                csv.add_row([mat_name, "sparse", size, data1['time'], data1['memory']])
-                csv.add_row([mat_name, "dense", size, data2['time'], data2['memory']])
-        csv.save_to_file("tests.csv")
-
-
-
+    while 1:
+        pass
     #         converted = data['result']
     # #print(mat)
     #
